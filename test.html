@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethical Hacking Academy</title>
+    
+    <!-- React and Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Three.js for 3D particles -->
+    <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+    
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Background and Particles */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .skull-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.3;
+            max-width: 800px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            color: #00ff41;
+            text-shadow: 0 0 2px #00ff41, 0 0 4px #00ff41;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: #d1d5db;
+            text-decoration: none;
+            padding: 8px 12px;
+            transition: all 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: #00ff41;
+        }
+
+        .nav-link.active {
+            color: #00ff41;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00ff41;
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+        }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #d1d5db;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .mobile-menu {
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 16px 20px;
+        }
+
+        .mobile-menu.open {
+            display: block;
+        }
+
+        .mobile-nav-link {
+            display: block;
+            color: #d1d5db;
+            text-decoration: none;
+            padding: 12px 0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+            color: #00ff41;
+            background: rgba(0, 255, 65, 0.1);
+            padding-left: 12px;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px 20px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            border-radius: 50px;
+            color: #00ff41;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: bold;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .hero-subtitle {
+            background: linear-gradient(45deg, #00ff41, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            color: #d1d5db;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: #00ff41;
+            color: black;
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 255, 65, 0.4), 0 0 20px rgba(0, 255, 65, 0.3), 0 0 40px rgba(0, 255, 65, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #00cc33;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00ff41;
+            border: 1px solid rgba(0, 255, 65, 0.5);
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5), inset 0 0 5px rgba(0, 255, 65, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 255, 65, 0.4), 0 0 20px rgba(0, 255, 65, 0.3), 0 0 40px rgba(0, 255, 65, 0.2);
+        }
+
+        .feature:hover .feature-icon {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.4);
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-description {
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        /* Learning Modules */
+        .modules-section {
+            position: relative;
+            z-index: 10;
+            padding: 80px 20px;
+            min-height: 100vh;
+        }
+
+        .modules-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .modules-title {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .modules-description {
+            font-size: 20px;
+            color: #d1d5db;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .module-card {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .module-card:hover {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.2);
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 0 5px rgba(0, 255, 65, 0.5), 0 0 10px rgba(0, 255, 65, 0.4), 0 0 20px rgba(0, 255, 65, 0.3), 0 0 40px rgba(0, 255, 65, 0.2);
+        }
+
+        .module-card:hover .module-icon {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .module-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .module-card:hover .module-title {
+            color: #ef4444;
+            text-shadow: 0 0 2px #ef4444, 0 0 4px #ef4444;
+        }
+
+        .module-description {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Module Content */
+        .module-content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 20px;
+            min-height: 100vh;
+        }
+
+        .module-header {
+            max-width: 800px;
+            margin: 0 auto 32px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #00ff41;
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            color: #00cc33;
+        }
+
+        .module-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            background: rgba(31, 41, 55, 0.5);
+            padding: 8px 16px;
+            border-radius: 8px;
+            gap: 8px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .module-main {
+            space-y: 32px;
+        }
+
+        .module-card-content {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 32px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Fira Code', 'JetBrains Mono', 'Source Code Pro', monospace;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+        }
+
+        .terminal-prompt {
+            color: #00ff41;
+        }
+
+        .terminal-output {
+            color: #d1d5db;
+        }
+
+        .sections-list {
+            space-y: 12px;
+        }
+
+        .section-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(75, 85, 99, 0.3);
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .section-item:hover {
+            background: rgba(75, 85, 99, 0.5);
+        }
+
+        .section-number {
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 255, 65, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff41;
+        }
+
+        .section-title {
+            color: #d1d5db;
+            font-size: 14px;
+        }
+
+        .module-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .icon-green {
+            color: #00ff41;
+            filter: drop-shadow(0 0 2px #00ff41) drop-shadow(0 0 4px #00ff41);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // TypeScript-like interfaces (comments for documentation)
+        /*
+        interface ModuleData {
+            title: string;
+            description: string;
+            duration: string;
+            difficulty: string;
+            sections: string[];
+        }
+
+        interface Module {
+            id: string;
+            title: string;
+            description: string;
+        }
+        */
+
+        // Particle Background Component with Three.js
+        function ParticleBackground() {
+            const mountRef = useRef(null);
+            const sceneRef = useRef();
+            const rendererRef = useRef();
+            const particlesRef = useRef();
+            const mouseRef = useRef({ x: 0, y: 0 });
+
+            useEffect(() => {
+                if (!mountRef.current) return;
+
+                // Scene setup
+                const scene = new THREE.Scene();
+                sceneRef.current = scene;
+
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                rendererRef.current = renderer;
+                mountRef.current.appendChild(renderer.domElement);
+
+                // Particle system
+                const particleCount = 1000;
+                const positions = new Float32Array(particleCount * 3);
+                const velocities = new Float32Array(particleCount * 3);
+
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 100;
+                    positions[i + 1] = (Math.random() - 0.5) * 100;
+                    positions[i + 2] = (Math.random() - 0.5) * 100;
+
+                    velocities[i] = (Math.random() - 0.5) * 0.02;
+                    velocities[i + 1] = (Math.random() - 0.5) * 0.02;
+                    velocities[i + 2] = (Math.random() - 0.5) * 0.02;
+                }
+
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+                // Create spherical texture for particles
+                function createSphereTexture() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 16;
+                    canvas.height = 16;
+                    const context = canvas.getContext('2d');
+
+                    // Multiple radial gradients for intense glow
+                    const gradient1 = context.createRadialGradient(8, 8, 0, 8, 8, 3);
+                    gradient1.addColorStop(0, 'rgba(0, 255, 65, 1)');
+                    gradient1.addColorStop(1, 'rgba(0, 255, 65, 0.9)');
+
+                    const gradient2 = context.createRadialGradient(8, 8, 0, 8, 8, 6);
+                    gradient2.addColorStop(0, 'rgba(0, 255, 65, 0.8)');
+                    gradient2.addColorStop(1, 'rgba(0, 255, 65, 0.4)');
+
+                    const gradient3 = context.createRadialGradient(8, 8, 0, 8, 8, 8);
+                    gradient3.addColorStop(0, 'rgba(0, 255, 65, 0.6)');
+                    gradient3.addColorStop(1, 'rgba(0, 255, 65, 0)');
+
+                    // Layer gradients for intense glow
+                    context.fillStyle = gradient3;
+                    context.fillRect(0, 0, 16, 16);
+                    context.fillStyle = gradient2;
+                    context.fillRect(0, 0, 16, 16);
+                    context.fillStyle = gradient1;
+                    context.fillRect(0, 0, 16, 16);
+
+                    return new THREE.CanvasTexture(canvas);
+                }
+
+                const material = new THREE.PointsMaterial({
+                    color: 0x00ff41,
+                    size: 1.5,
+                    transparent: true,
+                    opacity: 1.0,
+                    blending: THREE.AdditiveBlending,
+                    sizeAttenuation: true,
+                    map: createSphereTexture(),
+                });
+
+                const particles = new THREE.Points(geometry, material);
+                particlesRef.current = particles;
+                scene.add(particles);
+
+                camera.position.z = 50;
+
+                // Mouse interaction
+                const handleMouseMove = (event) => {
+                    mouseRef.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouseRef.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                };
+
+                window.addEventListener('mousemove', handleMouseMove);
+
+                // Animation loop
+                const animate = () => {
+                    requestAnimationFrame(animate);
+
+                    if (particlesRef.current) {
+                        const positions = particlesRef.current.geometry.attributes.position.array;
+
+                        for (let i = 0; i < positions.length; i += 3) {
+                            positions[i] += velocities[i];
+                            positions[i + 1] += velocities[i + 1];
+                            positions[i + 2] += velocities[i + 2];
+
+                            // Boundary check
+                            if (Math.abs(positions[i]) > 50) velocities[i] *= -1;
+                            if (Math.abs(positions[i + 1]) > 50) velocities[i + 1] *= -1;
+                            if (Math.abs(positions[i + 2]) > 50) velocities[i + 2] *= -1;
+
+                            // Mouse interaction effect
+                            const mouseInfluence = 0.0001;
+                            positions[i] += mouseRef.current.x * mouseInfluence;
+                            positions[i + 1] += mouseRef.current.y * mouseInfluence;
+                        }
+
+                        particlesRef.current.geometry.attributes.position.needsUpdate = true;
+                        particlesRef.current.rotation.y += 0.001;
+                    }
+
+                    renderer.render(scene, camera);
+                };
+
+                animate();
+
+                // Handle resize
+                const handleResize = () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                };
+
+                window.addEventListener('resize', handleResize);
+
+                return () => {
+                    window.removeEventListener('mousemove', handleMouseMove);
+                    window.removeEventListener('resize', handleResize);
+                    if (mountRef.current && renderer.domElement) {
+                        mountRef.current.removeChild(renderer.domElement);
+                    }
+                    renderer.dispose();
+                };
+            }, []);
+
+            return React.createElement('div', { 
+                className: 'particles-container',
+                ref: mountRef 
+            });
+        }
+
+        // Navigation Component
+        function Navigation({ currentPage, setCurrentPage }) {
+            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+            const navItems = [
+                { id: 'home', label: 'Home' },
+                { id: 'learn', label: 'Learn' },
+                { id: 'about', label: 'About Us' },
+                { id: 'contact', label: 'Contact' },
+            ];
+
+            const handleNavClick = (pageId) => {
+                setCurrentPage(pageId);
+                setIsMobileMenuOpen(false);
+            };
+
+            return React.createElement('nav', { className: 'nav' },
+                React.createElement('div', { className: 'nav-content' },
+                    React.createElement('div', { 
+                        className: 'logo',
+                        onClick: () => handleNavClick('home')
+                    },
+                        React.createElement('svg', { 
+                            className: 'icon icon-green',
+                            viewBox: '0 0 24 24'
+                        },
+                            React.createElement('path', { 
+                                d: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'
+                            })
+                        ),
+                        'EthicalHack Academy'
+                    ),
+                    React.createElement('div', { className: 'nav-links' },
+                        navItems.map(item =>
+                            React.createElement('div', {
+                                key: item.id,
+                                className: `nav-link ${currentPage === item.id ? 'active' : ''}`,
+                                onClick: () => handleNavClick(item.id)
+                            }, item.label)
+                        )
+                    ),
+                    React.createElement('button', {
+                        className: 'mobile-menu-btn',
+                        onClick: () => setIsMobileMenuOpen(!isMobileMenuOpen)
+                    },
+                        React.createElement('svg', { 
+                            className: 'icon',
+                            viewBox: '0 0 24 24'
+                        },
+                            React.createElement('path', { 
+                                d: isMobileMenuOpen ? 'M18 6L6 18M6 6l12 12' : 'M3 12h18M3 6h18M3 18h18'
+                            })
+                        )
+                    )
+                ),
+                React.createElement('div', { 
+                    className: `mobile-menu ${isMobileMenuOpen ? 'open' : ''}`
+                },
+                    navItems.map(item =>
+                        React.createElement('div', {
+                            key: item.id,
+                            className: `mobile-nav-link ${currentPage === item.id ? 'active' : ''}`,
+                            onClick: () => handleNavClick(item.id)
+                        }, item.label)
+                    )
+                )
+            );
+        }
+
+        // Hero Component
+        function Hero({ setCurrentPage }) {
+            return React.createElement('section', { className: 'hero' },
+                React.createElement('div', { className: 'hero-content' },
+                    React.createElement('div', { className: 'hero-badge' },
+                        React.createElement('svg', { 
+                            className: 'icon',
+                            viewBox: '0 0 24 24'
+                        },
+                            React.createElement('path', { 
+                                d: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'
+                            })
+                        ),
+                        'Ethical Hacking Education Platform'
+                    ),
+                    React.createElement('h1', { className: 'hero-title' },
+                        'Master the Art of ',
+                        React.createElement('span', { className: 'hero-subtitle' }, 'Ethical Hacking')
+                    ),
+                    React.createElement('p', { className: 'hero-description' },
+                        'Learn cybersecurity through hands-on experience with industry-standard tools. Build your skills in penetration testing, vulnerability assessment, and digital forensics.'
+                    ),
+                    React.createElement('div', { className: 'hero-buttons' },
+                        React.createElement('button', { 
+                            className: 'btn btn-primary',
+                            onClick: () => setCurrentPage('learn')
+                        },
+                            'Start Learning',
+                            React.createElement('svg', { 
+                                className: 'icon',
+                                viewBox: '0 0 24 24'
+                            },
+                                React.createElement('path', { 
+                                    d: 'M5 12h14m-7-7l7 7-7 7'
+                                })
+                            )
+                        ),
+                        React.createElement('button', { className: 'btn btn-outline' },
+                            'View Curriculum'
+                        )
+                    ),
+                    React.createElement('div', { className: 'features' },
+                        React.createElement('div', { className: 'feature' },
+                            React.createElement('div', { className: 'feature-icon' },
+                                React.createElement('svg', { 
+                                    className: 'icon icon-green',
+                                    viewBox: '0 0 24 24'
+                                },
+                                    React.createElement('path', { 
+                                        d: 'M16 18l2-2-2-2M8 6l-2 2 2 2m8-10L10 18'
+                                    })
+                                )
+                            ),
+                            React.createElement('h3', { className: 'feature-title' }, 'Hands-on Labs'),
+                            React.createElement('p', { className: 'feature-description' }, 
+                                'Practice with real-world scenarios in safe, controlled environments'
+                            )
+                        ),
+                        React.createElement('div', { className: 'feature' },
+                            React.createElement('div', { className: 'feature-icon' },
+                                React.createElement('svg', { 
+                                    className: 'icon',
+                                    viewBox: '0 0 24 24',
+                                    style: { color: '#3b82f6' }
+                                },
+                                    React.createElement('path', { 
+                                        d: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'
+                                    })
+                                )
+                            ),
+                            React.createElement('h3', { className: 'feature-title' }, 'Expert Guidance'),
+                            React.createElement('p', { className: 'feature-description' }, 
+                                'Learn from certified ethical hackers and security professionals'
+                            )
+                        ),
+                        React.createElement('div', { className: 'feature' },
+                            React.createElement('div', { className: 'feature-icon' },
+                                React.createElement('svg', { 
+                                    className: 'icon',
+                                    viewBox: '0 0 24 24',
+                                    style: { color: '#a855f7' }
+                                },
+                                    React.createElement('path', { 
+                                        d: 'M6 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM12 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM18 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0z'
+                                    })
+                                )
+                            ),
+                            React.createElement('h3', { className: 'feature-title' }, 'Industry Tools'),
+                            React.createElement('p', { className: 'feature-description' }, 
+                                'Master the same tools used by cybersecurity professionals worldwide'
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        // Learning Modules Component
+        function LearningModules({ setCurrentPage, setCurrentModule }) {
+            const modules = [
+                { id: 'metasploit', title: 'Metasploit Framework', description: 'Master the world\'s most used penetration testing framework' },
+                { id: 'nmap', title: 'Network Mapping (Nmap)', description: 'Discover hosts and services on computer networks' },
+                { id: 'wireshark', title: 'Wireshark Analysis', description: 'Analyze network protocols and traffic patterns' },
+                { id: 'burp-suite', title: 'Burp Suite', description: 'Web application security testing platform' },
+                { id: 'john-the-ripper', title: 'John the Ripper', description: 'Password cracking and security auditing' },
+                { id: 'hydra', title: 'Hydra', description: 'Fast network logon cracker' },
+                { id: 'hashcat', title: 'Hashcat', description: 'Advanced password recovery utility' },
+                { id: 'sql-injection', title: 'SQL Injection', description: 'Database exploitation techniques' },
+                { id: 'xss', title: 'Cross-Site Scripting', description: 'Client-side injection attacks' },
+                { id: 'linux-basics', title: 'Linux Fundamentals', description: 'Essential Linux skills for ethical hackers' },
+                { id: 'osint', title: 'OSINT Techniques', description: 'Open Source Intelligence gathering' },
+                { id: 'social-engineering', title: 'Social Engineering', description: 'Human-based attack vectors and defenses' },
+                { id: 'reconnaissance', title: 'Reconnaissance', description: 'Information gathering methodologies' },
+                { id: 'privilege-escalation', title: 'Privilege Escalation', description: 'Gaining higher-level permissions' },
+                { id: 'reverse-shells', title: 'Reverse Shells', description: 'Remote access and control techniques' },
+                { id: 'buffer-overflow', title: 'Buffer Overflows', description: 'Memory corruption vulnerabilities' },
+                { id: 'cryptography', title: 'Cryptography', description: 'Encryption and decryption fundamentals' },
+                { id: 'network-scanning', title: 'Network Scanning', description: 'Network discovery and enumeration' },
+                { id: 'web-app-hacking', title: 'Web App Hacking', description: 'Web application penetration testing' },
+                { id: 'post-exploitation', title: 'Post-Exploitation', description: 'Maintaining access and data exfiltration' },
+                { id: 'firewalls-ids', title: 'Firewalls & IDS', description: 'Network security systems' },
+                { id: 'digital-forensics', title: 'Digital Forensics', description: 'Evidence collection and analysis' },
+                { id: 'mobile-security', title: 'Mobile Security', description: 'iOS and Android security testing' },
+                { id: 'malware-analysis', title: 'Malware Analysis', description: 'Reverse engineering malicious software' }
+            ];
+
+            const handleModuleClick = (moduleId) => {
+                setCurrentModule(moduleId);
+                setCurrentPage('module');
+            };
+
+            return React.createElement('section', { className: 'modules-section' },
+                React.createElement('div', { className: 'modules-header' },
+                    React.createElement('h1', { className: 'modules-title' }, 'Learning Modules'),
+                    React.createElement('p', { className: 'modules-description' },
+                        'Comprehensive curriculum covering essential ethical hacking tools and techniques. Each module provides hands-on experience with real-world scenarios.'
+                    )
+                ),
+                React.createElement('div', { className: 'modules-grid' },
+                    modules.map(module =>
+                        React.createElement('div', {
+                            key: module.id,
+                            className: 'module-card',
+                            onClick: () => handleModuleClick(module.id)
+                        },
+                            React.createElement('div', { className: 'module-icon' },
+                                React.createElement('svg', { 
+                                    className: 'icon icon-green',
+                                    viewBox: '0 0 24 24'
+                                },
+                                    React.createElement('path', { 
+                                        d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'
+                                    }),
+                                    React.createElement('path', { 
+                                        d: 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'
+                                    })
+                                )
+                            ),
+                            React.createElement('h3', { className: 'module-title' }, module.title),
+                            React.createElement('p', { className: 'module-description' }, module.description)
+                        )
+                    )
+                )
+            );
+        }
+
+        // Module Content Component
+        function ModuleContent({ moduleId, setCurrentPage }) {
+            const moduleData = {
+                metasploit: {
+                    title: 'Metasploit Framework',
+                    description: 'Master the world\'s most used penetration testing framework',
+                    duration: '4 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Introduction to Metasploit',
+                        'Setting up the Environment',
+                        'Basic Commands and Navigation',
+                        'Exploits and Payloads',
+                        'Post-Exploitation Techniques',
+                        'Advanced Features',
+                    ],
+                },
+                nmap: {
+                    title: 'Network Mapping (Nmap)',
+                    description: 'Discover hosts and services on computer networks',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Nmap Basics',
+                        'Port Scanning Techniques',
+                        'Service Detection',
+                        'OS Fingerprinting',
+                        'Scripting Engine (NSE)',
+                        'Stealth Scanning',
+                    ],
+                },
+                wireshark: {
+                    title: 'Wireshark Analysis',
+                    description: 'Analyze network protocols and traffic patterns',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Introduction to Wireshark',
+                        'Capturing Packets',
+                        'Display Filters',
+                        'Analyzing Common Protocols (HTTP, DNS)',
+                        'Following TCP Streams',
+                        'Advanced Filtering and Analysis',
+                    ],
+                },
+                'burp-suite': {
+                    title: 'Burp Suite',
+                    description: 'Web application security testing platform',
+                    duration: '5 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Introduction to Burp Suite',
+                        'Proxy and Target Scope',
+                        'Intruder for Fuzzing',
+                        'Repeater for Manual Testing',
+                        'Sequencer for Token Analysis',
+                        'Extender and BApp Store',
+                    ],
+                },
+                'john-the-ripper': {
+                    title: 'John the Ripper',
+                    description: 'Password cracking and security auditing',
+                    duration: '2 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Password Cracking Basics',
+                        'Using Wordlists',
+                        'Brute-Force Attacks',
+                        'Custom Rules',
+                        'Cracking Common Hash Types',
+                        'Session Management',
+                    ],
+                },
+                hydra: {
+                    title: 'Hydra',
+                    description: 'Fast network logon cracker',
+                    duration: '2 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Introduction to Hydra',
+                        'Targeting Services (SSH, FTP)',
+                        'Using Username and Password Lists',
+                        'Verbose Output and Options',
+                        'Graphical Front-ends',
+                        'Avoiding Lockouts',
+                    ],
+                },
+                hashcat: {
+                    title: 'Hashcat',
+                    description: 'Advanced password recovery utility',
+                    duration: '3 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Introduction to Hashcat',
+                        'Hash Modes and Attack Modes',
+                        'Mask Attacks',
+                        'Rule-Based Attacks',
+                        'Optimizing Performance',
+                        'Potfiles and Session Management',
+                    ],
+                },
+                'sql-injection': {
+                    title: 'SQL Injection',
+                    description: 'Database exploitation techniques',
+                    duration: '4 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'What is SQL Injection?',
+                        'In-Band SQLi',
+                        'Inferential (Blind) SQLi',
+                        'Out-of-Band SQLi',
+                        'Using SQLMap',
+                        'Prevention Techniques',
+                    ],
+                },
+                xss: {
+                    title: 'Cross-Site Scripting',
+                    description: 'Client-side injection attacks',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Understanding XSS',
+                        'Reflected XSS',
+                        'Stored XSS',
+                        'DOM-based XSS',
+                        'Stealing Cookies and Session Hijacking',
+                        'XSS Prevention',
+                    ],
+                },
+                'linux-basics': {
+                    title: 'Linux Fundamentals',
+                    description: 'Essential Linux skills for ethical hackers',
+                    duration: '5 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'The Linux Filesystem',
+                        'Core Commands (ls, cd, pwd, cat)',
+                        'Permissions and Ownership',
+                        'Process Management',
+                        'Networking Commands',
+                        'Bash Scripting Basics',
+                    ],
+                },
+                osint: {
+                    title: 'OSINT Techniques',
+                    description: 'Open Source Intelligence gathering',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Introduction to OSINT',
+                        'Using Search Engines Effectively',
+                        'Social Media Intelligence (SOCMINT)',
+                        'Tools like Maltego and theHarvester',
+                        'Analyzing Metadata',
+                        'Documentation and Reporting',
+                    ],
+                },
+                'social-engineering': {
+                    title: 'Social Engineering',
+                    description: 'Human-based attack vectors and defenses',
+                    duration: '2 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Principles of Influence',
+                        'Phishing, Vishing, and Smishing',
+                        'Pretexting and Baiting',
+                        'Physical Social Engineering',
+                        'Tools and Frameworks',
+                        'Defense and Awareness Training',
+                    ],
+                },
+                reconnaissance: {
+                    title: 'Reconnaissance',
+                    description: 'Information gathering methodologies',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Passive vs. Active Reconnaissance',
+                        'DNS Enumeration',
+                        'WHOIS and Domain Research',
+                        'Google Dorking',
+                        'Shodan for IoT and Service Discovery',
+                        'Building a Target Profile',
+                    ],
+                },
+                'privilege-escalation': {
+                    title: 'Privilege Escalation',
+                    description: 'Gaining higher-level permissions',
+                    duration: '4 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Windows Privilege Escalation',
+                        'Linux Privilege Escalation',
+                        'Kernel Exploits',
+                        'Misconfigured Services',
+                        'Password Hunting',
+                        'Automated Scripts (LinEnum, PowerUp)',
+                    ],
+                },
+                'reverse-shells': {
+                    title: 'Reverse Shells',
+                    description: 'Remote access and control techniques',
+                    duration: '2 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Bind vs. Reverse Shells',
+                        'Using Netcat',
+                        'Web Shells',
+                        'Upgrading Shells (TTY)',
+                        'Common Payloads (Bash, Python, PowerShell)',
+                        'Evading Detection',
+                    ],
+                },
+                'buffer-overflow': {
+                    title: 'Buffer Overflows',
+                    description: 'Memory corruption vulnerabilities',
+                    duration: '5 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Stack-Based Overflows',
+                        'Fuzzing and Finding Vulnerabilities',
+                        'Controlling the EIP Register',
+                        'Finding Space for Shellcode',
+                        'Bad Characters',
+                        'Modern Protections (ASLR, DEP)',
+                    ],
+                },
+                cryptography: {
+                    title: 'Cryptography',
+                    description: 'Encryption and decryption fundamentals',
+                    duration: '4 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Symmetric vs. Asymmetric Encryption',
+                        'Common Ciphers (AES, RSA)',
+                        'Hashing Algorithms (MD5, SHA)',
+                        'Public Key Infrastructure (PKI)',
+                        'Cryptographic Attacks',
+                        'Steganography',
+                    ],
+                },
+                'network-scanning': {
+                    title: 'Network Scanning',
+                    description: 'Network discovery and enumeration',
+                    duration: '3 hours',
+                    difficulty: 'Beginner',
+                    sections: [
+                        'Host Discovery (Ping Sweeps)',
+                        'Port Scanning with Nmap',
+                        'Banner Grabbing',
+                        'Vulnerability Scanning with Nessus',
+                        'Enumerating Services (SMB, SMTP)',
+                        'Documenting Findings',
+                    ],
+                },
+                'web-app-hacking': {
+                    title: 'Web App Hacking',
+                    description: 'Web application penetration testing',
+                    duration: '6 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'OWASP Top 10 Overview',
+                        'Authentication and Authorization Bypass',
+                        'File Inclusion (LFI/RFI)',
+                        'Command Injection',
+                        'Cross-Site Request Forgery (CSRF)',
+                        'Security Misconfigurations',
+                    ],
+                },
+                'post-exploitation': {
+                    title: 'Post-Exploitation',
+                    description: 'Maintaining access and data exfiltration',
+                    duration: '4 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Maintaining Persistence',
+                        'Pivoting and Lateral Movement',
+                        'Data Exfiltration Techniques',
+                        'Covering Tracks',
+                        'Pillaging for Information',
+                        'Post-Exploitation Frameworks',
+                    ],
+                },
+                'firewalls-ids': {
+                    title: 'Firewalls & IDS',
+                    description: 'Network security systems',
+                    duration: '3 hours',
+                    difficulty: 'Intermediate',
+                    sections: [
+                        'Types of Firewalls',
+                        'Intrusion Detection vs. Prevention Systems',
+                        'Evasion Techniques',
+                        'Signature-based vs. Anomaly-based Detection',
+                        'Configuring Snort',
+                        'Web Application Firewalls (WAFs)',
+                    ],
+                },
+                'digital-forensics': {
+                    title: 'Digital Forensics',
+                    description: 'Evidence collection and analysis',
+                    duration: '5 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Chain of Custody',
+                        'Disk Imaging and Acquisition',
+                        'Memory Forensics (Volatility)',
+                        'File System Analysis',
+                        'Log Analysis',
+                        'Reporting and Expert Witness',
+                    ],
+                },
+                'mobile-security': {
+                    title: 'Mobile Security',
+                    description: 'iOS and Android security testing',
+                    duration: '5 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Android vs. iOS Security Models',
+                        'Setting up a Mobile Pentesting Lab',
+                        'Static and Dynamic Analysis',
+                        'Reverse Engineering Apps',
+                        'Intercepting Traffic',
+                        'Common Mobile Vulnerabilities',
+                    ],
+                },
+                'malware-analysis': {
+                    title: 'Malware Analysis',
+                    description: 'Reverse engineering malicious software',
+                    duration: '6 hours',
+                    difficulty: 'Advanced',
+                    sections: [
+                        'Static Analysis Techniques',
+                        'Dynamic Analysis in a Sandbox',
+                        'Debugging with x64dbg/GDB',
+                        'Deobfuscation Techniques',
+                        'Analyzing Packers',
+                        'Creating Signatures (YARA)',
+                    ],
+                },
+            };
+
+            const module = moduleData[moduleId] || {
+                title: 'Module Not Found',
+                description: 'This module is currently under development',
+                duration: 'N/A',
+                difficulty: 'N/A',
+                sections: [],
+            };
+
+            return React.createElement('section', { className: 'module-content' },
+                React.createElement('div', { className: 'module-header' },
+                    React.createElement('div', { 
+                        className: 'back-link',
+                        onClick: () => setCurrentPage('learn')
+                    },
+                        React.createElement('svg', { 
+                            className: 'icon',
+                            viewBox: '0 0 24 24'
+                        },
+                            React.createElement('path', { 
+                                d: 'M19 12H5m7-7l-7 7 7 7'
+                            })
+                        ),
+                        'Back to Modules'
+                    ),
+                    React.createElement('h1', { 
+                        style: { fontSize: '2.5rem', fontWeight: 'bold', color: 'white', marginBottom: '16px' }
+                    }, module.title),
+                    React.createElement('p', { 
+                        style: { fontSize: '1.25rem', color: '#d1d5db', marginBottom: '24px' }
+                    }, module.description),
+                    React.createElement('div', { className: 'module-meta' },
+                        React.createElement('div', { className: 'meta-item' },
+                            React.createElement('svg', { 
+                                className: 'icon',
+                                viewBox: '0 0 24 24',
+                                style: { color: '#00ff41' }
+                            },
+                                React.createElement('path', { 
+                                    d: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z'
+                                }),
+                                React.createElement('path', { 
+                                    d: 'M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'
+                                })
+                            ),
+                            React.createElement('span', { style: { color: '#d1d5db' } }, module.duration)
+                        ),
+                        React.createElement('div', { className: 'meta-item' },
+                            React.createElement('svg', { 
+                                className: 'icon',
+                                viewBox: '0 0 24 24',
+                                style: { color: '#3b82f6' }
+                            },
+                                React.createElement('path', { 
+                                    d: 'M22 11.08V12a10 10 0 1 1-5.93-9.14'
+                                }),
+                                React.createElement('polyline', { 
+                                    points: '22,4 12,14.01 9,11.01'
+                                })
+                            ),
+                            React.createElement('span', { style: { color: '#d1d5db' } }, module.difficulty)
+                        )
+                    )
+                ),
+                React.createElement('div', { className: 'module-grid' },
+                    React.createElement('div', { className: 'module-main' },
+                        React.createElement('div', { className: 'module-card-content' },
+                            React.createElement('div', { className: 'card-header' },
+                                React.createElement('svg', { 
+                                    className: 'icon',
+                                    viewBox: '0 0 24 24',
+                                    style: { color: '#00ff41' }
+                                },
+                                    React.createElement('polygon', { 
+                                        points: '5,3 19,12 5,21 5,3'
+                                    })
+                                ),
+                                React.createElement('h3', { className: 'card-title' }, 'Course Overview')
+                            ),
+                            React.createElement('div', { style: { color: '#d1d5db', lineHeight: '1.6' } },
+                                React.createElement('p', { style: { marginBottom: '16px' } },
+                                    `This comprehensive module will teach you everything you need to know about ${module.title.toLowerCase()}. You'll learn through hands-on exercises, real-world scenarios, and practical demonstrations.`
+                                ),
+                                React.createElement('p', null,
+                                    'By the end of this module, you\'ll have a solid understanding of how to use these tools effectively and ethically in penetration testing scenarios.'
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'module-card-content' },
+                            React.createElement('div', { className: 'card-header' },
+                                React.createElement('svg', { 
+                                    className: 'icon',
+                                    viewBox: '0 0 24 24',
+                                    style: { color: '#00ff41' }
+                                },
+                                    React.createElement('polyline', { 
+                                        points: '4,17 10,11 4,5'
+                                    }),
+                                    React.createElement('line', { 
+                                        x1: '12', y1: '19', x2: '20', y2: '19'
+                                    })
+                                ),
+                                React.createElement('h3', { className: 'card-title' }, 'Interactive Terminal')
+                            ),
+                            React.createElement('div', { className: 'terminal' },
+                                React.createElement('div', { className: 'terminal-line' },
+                                    React.createElement('span', { className: 'terminal-prompt' }, '$ whoami')
+                                ),
+                                React.createElement('div', { className: 'terminal-line' },
+                                    React.createElement('span', { className: 'terminal-output' }, 'ethical-hacker')
+                                ),
+                                React.createElement('div', { className: 'terminal-line' },
+                                    React.createElement('span', { className: 'terminal-prompt' }, '$ pwd')
+                                ),
+                                React.createElement('div', { className: 'terminal-line' },
+                                    React.createElement('span', { className: 'terminal-output' }, '/home/ethical-hacker/lab')
+                                ),
+                                React.createElement('div', { className: 'terminal-line' },
+                                    React.createElement('span', { className: 'terminal-prompt' }, '$ _')
+                                )
+                            ),
+                            React.createElement('p', { 
+                                style: { color: '#9ca3af', fontSize: '14px', marginTop: '16px' }
+                            }, 'Practice commands in our simulated environment')
+                        )
+                    ),
+                    React.createElement('div', null,
+                        React.createElement('div', { className: 'module-card-content' },
+                            React.createElement('h3', { 
+                                className: 'card-title',
+                                style: { marginBottom: '16px' }
+                            }, 'Module Sections'),
+                            React.createElement('div', { className: 'sections-list' },
+                                module.sections.map((section, index) =>
+                                    React.createElement('div', {
+                                        key: index,
+                                        className: 'section-item'
+                                    },
+                                        React.createElement('div', { className: 'section-number' }, index + 1),
+                                        React.createElement('span', { className: 'section-title' }, section)
+                                    )
+                                )
+                            )
+                        ),
+                        React.createElement('div', { className: 'module-actions' },
+                            React.createElement('button', { className: 'btn btn-primary' }, 'Start Module'),
+                            React.createElement('button', { className: 'btn btn-outline' }, 'Download Resources')
+                        )
+                    )
+                )
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [currentPage, setCurrentPage] = useState('home');
+            const [currentModule, setCurrentModule] = useState('metasploit');
+
+            const renderPage = () => {
+                switch (currentPage) {
+                    case 'home':
+                        return React.createElement(Hero, { setCurrentPage });
+                    case 'learn':
+                        return React.createElement(LearningModules, { setCurrentPage, setCurrentModule });
+                    case 'module':
+                        return React.createElement(ModuleContent, { moduleId: currentModule, setCurrentPage });
+                    case 'about':
+                        return React.createElement('div', { 
+                            style: { 
+                                position: 'relative', 
+                                zIndex: 10, 
+                                minHeight: '100vh', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '24px'
+                            }
+                        }, 'About Us - Coming Soon');
+                    case 'contact':
+                        return React.createElement('div', { 
+                            style: { 
+                                position: 'relative', 
+                                zIndex: 10, 
+                                minHeight: '100vh', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '24px'
+                            }
+                        }, 'Contact - Coming Soon');
+                    default:
+                        return React.createElement(Hero, { setCurrentPage });
+                }
+            };
+
+            return React.createElement('div', null,
+                React.createElement('div', { className: 'background' },
+                    React.createElement('img', {
+                        src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1001010-2oil2kIppkslMBErKPrYWIHIURno5G.png',
+                        alt: 'Cybersecurity skull with binary code',
+                        className: 'skull-bg'
+                    }),
+                    React.createElement(ParticleBackground)
+                ),
+                React.createElement(Navigation, { currentPage, setCurrentPage }),
+                renderPage()
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+</body>
+</html>
